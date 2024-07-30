@@ -1,0 +1,77 @@
+package jr.minor2.jiit.com.findall;
+
+import android.Manifest;
+import android.support.v7.app.AppCompatActivity;
+import android.os.Bundle;
+import android.view.View;
+import android.widget.Toast;
+
+import com.karumi.dexter.Dexter;
+import com.karumi.dexter.MultiplePermissionsReport;
+import com.karumi.dexter.PermissionToken;
+import com.karumi.dexter.listener.PermissionRequest;
+import com.karumi.dexter.listener.multi.MultiplePermissionsListener;
+import com.rengwuxian.materialedittext.MaterialEditText;
+
+import java.util.List;
+
+import mehdi.sakout.fancybuttons.FancyButton;
+
+public class SignUp_Act extends AppCompatActivity implements View.OnClickListener{
+    FancyButton signup;
+    MaterialEditText mail,pass,name;
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_sign_up_);
+        mail=(MaterialEditText)findViewById(R.id.sign_mail);
+        pass=(MaterialEditText)findViewById(R.id.sign_pass);
+        name=(MaterialEditText)findViewById(R.id.sign_name);
+        signup=(FancyButton)findViewById(R.id.btn_signup2);
+        signup.setOnClickListener(this);
+    }
+
+    @Override
+    public void onClick(View view) {
+        String spass,sname,smail;
+        spass=pass.getText().toString();
+        sname=name.getText().toString();
+        smail=mail.getText().toString();
+        new Cloud_Handle(this).execute("signup",smail,spass,sname);
+        Dexter.withActivity(this)
+                .withPermissions(
+                        Manifest.permission.ACCESS_COARSE_LOCATION,
+                        Manifest.permission.ACCESS_FINE_LOCATION,
+                        Manifest.permission.CALL_PHONE,
+                        Manifest.permission.READ_PHONE_STATE)
+                .withListener(new MultiplePermissionsListener() {
+                    @Override
+                    public void onPermissionsChecked(MultiplePermissionsReport report) {
+                        if(report.areAllPermissionsGranted()){
+                            signup.setEnabled(true);
+                        }
+                        if (report.isAnyPermissionPermanentlyDenied()) {
+                            // show alert dialog navigating to Settings
+                            showSettingsDialog();
+                        }
+                    }
+
+                    @Override
+                    public void onPermissionRationaleShouldBeShown(List<PermissionRequest> permissions, PermissionToken token) {
+
+                    }
+                }).onSameThread()
+                .check();;
+    }
+
+    private void showSettingsDialog() {
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        Place_Data.user_name="";
+        Place_Data.user_mail="";
+    }
+
+}

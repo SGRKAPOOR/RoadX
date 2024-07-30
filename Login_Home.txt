@@ -1,0 +1,81 @@
+package jr.minor2.jiit.com.findall;
+
+import android.Manifest;
+import android.content.Intent;
+import android.support.v7.app.AppCompatActivity;
+import android.os.Bundle;
+import android.view.View;
+import android.widget.Toast;
+
+import com.karumi.dexter.Dexter;
+import com.karumi.dexter.MultiplePermissionsReport;
+import com.karumi.dexter.PermissionToken;
+import com.karumi.dexter.listener.PermissionRequest;
+import com.karumi.dexter.listener.multi.MultiplePermissionsListener;
+import com.rengwuxian.materialedittext.MaterialEditText;
+
+import java.util.List;
+
+import mehdi.sakout.fancybuttons.FancyButton;
+
+public class Login_Home extends AppCompatActivity implements View.OnClickListener {
+    FancyButton login,signup;
+    MaterialEditText email,pass;
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_login__home);
+        login=(FancyButton)findViewById(R.id.btn_login);
+        login.setOnClickListener(this);
+
+        signup=(FancyButton)findViewById(R.id.btn_signup);
+        signup.setOnClickListener(this);
+        email=(MaterialEditText)findViewById(R.id.login_mail);
+        pass=(MaterialEditText)findViewById(R.id.login_pass);
+        Place_Data.user_mail="";
+        Place_Data.user_name="";
+        login.setEnabled(false);
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        Dexter.withActivity(this)
+                .withPermissions(
+                        Manifest.permission.ACCESS_COARSE_LOCATION,
+                        Manifest.permission.ACCESS_FINE_LOCATION,
+                        Manifest.permission.CALL_PHONE,
+                        Manifest.permission.READ_PHONE_STATE)
+                .withListener(new MultiplePermissionsListener() {
+                    @Override
+                    public void onPermissionsChecked(MultiplePermissionsReport report) {
+                        if(report.areAllPermissionsGranted()){
+                            login.setEnabled(true);
+                        }
+                        else{
+                            Toast.makeText(getApplicationContext(),"Please Grant the Permissions for smooth functioning of the graph",Toast.LENGTH_SHORT);
+                        }
+                    }
+
+                    @Override
+                    public void onPermissionRationaleShouldBeShown(List<PermissionRequest> permissions, PermissionToken token) {
+
+                    }
+                }).onSameThread()
+                .check();;
+    }
+
+    @Override
+    public void onClick(View view) {
+        int id=view.getId();
+        if(id==R.id.btn_login){
+            String smail,spass;
+            smail=email.getText().toString();
+            spass=pass.getText().toString();
+            new Cloud_Handle(this).execute("login",email,pass);
+        }
+        else if(id==R.id.btn_signup){
+            startActivity(new Intent(this,SignUp_Act.class));
+        }
+    }
+}
